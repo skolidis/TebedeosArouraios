@@ -9,10 +9,8 @@ public class Main {
         node b=new node(y);
         node c=new node(z);
         node[] nodes={a,b,c};
-        Arrays.sort(nodes);
-        for(int i=0;i< nodes.length;i++){
-            System.out.print(nodes[i].getX());
-        }
-
+        Rtree R= new Rtree();
+        R.bulkInsert(nodes);
+        R.printTree();
     }
 }
