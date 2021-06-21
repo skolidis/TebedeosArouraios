@@ -9,8 +9,12 @@ public class Main {
         node b=new node(y);
         node c=new node(z);
         node[] nodes={a,b,c};
-        Rtree R= new Rtree();
-        R.bulkInsert(nodes);
+        float[] boundlow={0,0,0};
+        float[] boundhigh={10,10,10};
+        Rtree R=new Rtree(3,boundlow,boundhigh);
+        R.insert(a);
+        R.insert(b);
+        R.insert(c);
         R.printTree();
     }
 }
