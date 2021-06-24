@@ -22,6 +22,14 @@ public class node implements Comparable<node> {
         return coordinates;
     }
 
+    public float calculateDistance(node n){
+        float sum=0;
+        float[] other=n.getCoordinates();
+        for(int i=0;i<coordinates.length;i++)
+            sum+=Math.pow(coordinates[i] -other[i],2);
+        return (float) Math.sqrt(sum);
+    }
+
     public void printNode(){
         for(int i=0;i<coordinates.length;i++)
             System.out.print(coordinates[i]+" ");

@@ -1,46 +1,55 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Rtree {
-    Rea[] root;
+    ArrayList<Rea> root;
     int max;
     int min;
-    int rootCapacity;
-    float[] boundlow;
-    float[] boundhigh;
+    ArrayList<Float> boundlow;
+    ArrayList<Float> boundhigh;
 
-    public Rtree(int dims,float[] boundlow,float[] boundhigh){
+    public Rtree(int dims,ArrayList<Float> boundlow,ArrayList<Float> boundhigh){
         max= (int)Math.floor(32000.0/(4*dims));
         min= max/2;
-        root=new Rea[max];
-        rootCapacity=0;
+        root=new ArrayList<Rea>();
         this.boundlow=boundlow;
         this.boundhigh=boundhigh;
     }
 
-    public void insert(node n){
-        if(rootCapacity==0)
-            root[rootCapacity++]=new Rea(max,n.getDims());
+    public void insert(node n,boolean firstTime){
+        if(root.size()==0)
+            root.add(new Rea(max,n.getDims(),0));
 
-        Rea currentR=chooseSubtree(root,n,rootCapacity);
+        Rea currentR=chooseSubtree(root,n);
         while(!currentR.isLeaf()){
-            currentR=chooseSubtree(currentR.getNodes(),n,currentR.getNodes().length);
+            currentR=chooseSubtree(currentR.getNodes(),n);
         }
         if(!currentR.isFull()) {
             currentR.insertNode(n);
         }
+        else{
+            OverflowTreatment(currentR,firstTime,n);
+        }
     }
 
-    public Rea chooseSubtree(Rea[] rea, node n,int numberOfNodes){
+    private void OverflowTreatment(Rea currentR,boolean firstTime,node n){
+        if(currentR.getLevel()!=0&&firstTime){
+            firstTime=false;
+            reInsert(currentR,n,firstTime);
+        }
+        else{
+
+        }
+    }
+
+    private Rea chooseSubtree(ArrayList<Rea> rea, node n){
         float[] distances=new float[n.getDims()];
         float[] coord= n.getCoordinates();
         float sum;
 
-        for (int i=0;i<numberOfNodes;i++){
+        for (int i=0;i<rea.size();i++){
             System.out.print(i);
-            float[] center=rea[i].getCenter();
-            for(int j=0;j<center.length;j++){
-                System.out.print(center[j]+"\n");
-            }
+            float[] center=rea.get(i).getCenter();
             sum=0;
             for(int j=0;j<center.length;j++)
                 sum+=Math.pow(coord[j]-center[j],2);
@@ -50,32 +59,37 @@ public class Rtree {
         float min=distances[0];
         int pos=0;
 
-        for(int i=0;i<numberOfNodes;i++){
+        for(int i=0;i<rea.size();i++){
             if(distances[i]<min){
                 min=distances[i];
                 pos=i;
             }
         }
 
-        return rea[pos];
+        return rea.get(pos);
+    }
+
+    private void reInsert(Rea currentR,node n,boolean firstTime){
+        node[] maxdistances=currentR.getMaxDistances(n);
+        for (node maxdistance : maxdistances)
+            insert(maxdistance,firstTime);
+
     }
 
     public void bulkInsert(node[] nodes){
         Arrays.sort(nodes);
-        rootCapacity=-1;
         for(int i=0;i<nodes.length;i++)
         {
             if (i%max==0) {
-                rootCapacity++;
-                root[rootCapacity]=new Rea(max,nodes[0].getDims());
+                root.add(new Rea(max,nodes[0].getDims(),0));
             }
-            root[rootCapacity].bulkAddNode(nodes[i]);
+            root.get(i).bulkAddNode(nodes[i]);
         }
     }
 
     public void printTree(){
-        for(int i=0;i<rootCapacity;i++){
-            root[i].printRea();
+        for(int i=0;i<root.size();i++){
+            root.get(i).printRea();
         }
     }
 }
