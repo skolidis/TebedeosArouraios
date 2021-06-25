@@ -18,7 +18,7 @@ public class Rtree {
 
     public void insert(node n,boolean firstTime){
         if(root.size()==0)
-            root.add(new Rea(max,n.getDims(),0));
+            root.add(new Rea(max,n.getDims(),0,null));
 
         Rea currentR=chooseSubtree(root,n);
         while(!currentR.isLeaf()){
@@ -38,7 +38,7 @@ public class Rtree {
             reInsert(currentR,n,firstTime);
         }
         else{
-
+            split(currentR);
         }
     }
 
@@ -76,12 +76,30 @@ public class Rtree {
 
     }
 
+    private void split(Rea currentRea){
+        int axis=chooseSplitAxis(currentRea);
+        int index=chooseSplitIndex(currentRea,axis);
+        if(currentRea.getParent()==null) {
+
+        }
+        else
+            currentRea.getParent().splitAndDivide();
+    }
+
+    private int chooseSplitAxis(Rea currentRea){
+        return currentRea.lowestAxis();
+    }
+
+    private int chooseSplitIndex(Rea currentRea, int axis){
+        return max/2;
+    }
+
     public void bulkInsert(node[] nodes){
         Arrays.sort(nodes);
         for(int i=0;i<nodes.length;i++)
         {
             if (i%max==0) {
-                root.add(new Rea(max,nodes[0].getDims(),0));
+                root.add(new Rea(max,nodes[0].getDims(),0,null));
             }
             root.get(i).bulkAddNode(nodes[i]);
         }

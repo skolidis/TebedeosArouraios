@@ -10,13 +10,15 @@ public class Rea {
     ArrayList<Rea> nodes;
     ArrayList<node> leaves;
     int nodeLimit;
+    Rea parent;
 
-    public Rea(int nodeLimit,int dimNumber,int level){
+    public Rea(int nodeLimit,int dimNumber,int level, Rea parent){
         nodes=new ArrayList<Rea>();
         leaves=new ArrayList<node>();
         this.nodeLimit=nodeLimit;
         boundhigh=new float[dimNumber];
         boundlow=new float[dimNumber];
+        this.parent=parent;
         this.level=level;
     }
 
@@ -87,6 +89,25 @@ public class Rea {
         }
     }
 
+    public int lowestAxis(){
+        float[] sums=new float[boundlow.length];
+        for(int i=0;i<leaves.size();i++){
+            float[] coord=leaves.get(i).getCoordinates();
+            for(int j=0;j<coord.length;j++){
+                sums[j]+=coord[j];
+            }
+        }
+        int pos=0;
+        float min=sums[0];
+        for (int i=0;i<sums.length;i++){
+            if(sums[i]<min){
+                min=sums[i];
+                pos=i;
+            }
+        }
+        return pos;
+    }
+
     public boolean isLeaf(){ return nodes.size()==0; }
 
     public boolean isFull(){ return nodes.size()==nodeLimit;}
@@ -104,6 +125,7 @@ public class Rea {
 
     public int getLevel(){return level;}
 
+    public Rea getParent(){ return parent;}
 
     public void bulkAddNode(node n){
         if (leaves.size()==0){
