@@ -7,6 +7,7 @@ public class Rtree {
     int min;
     ArrayList<Float> boundlow;
     ArrayList<Float> boundhigh;
+    int dims;
 
     public Rtree(int dims,ArrayList<Float> boundlow,ArrayList<Float> boundhigh){
         max= (int)Math.floor(32000.0/(4*dims));
@@ -14,6 +15,7 @@ public class Rtree {
         root=new ArrayList<Rea>();
         this.boundlow=boundlow;
         this.boundhigh=boundhigh;
+        this.dims=dims;
     }
 
     public void insert(node n,boolean firstTime){
@@ -24,7 +26,7 @@ public class Rtree {
         while(!currentR.isLeaf()){
             currentR=chooseSubtree(currentR.getNodes(),n);
         }
-        if(!currentR.isFull()) {
+        if(!currentR.isFullofLeaves()) {
             currentR.insertNode(n);
         }
         else{
@@ -80,10 +82,30 @@ public class Rtree {
         int axis=chooseSplitAxis(currentRea);
         int index=chooseSplitIndex(currentRea,axis);
         if(currentRea.getParent()==null) {
-
+            if(root.size()<max){
+                Rea r= new Rea(max,dims,0,null);
+                node[] ns= currentRea.deleteAndReturn(index);
+                for (node n : ns)
+                    r.insertNode(n);
+                root.add(root.indexOf(currentRea)+1,r);
+                r.adjustBounds();
+            }
+            else{
+                currentRea.splitAndDivide(index);
+            }
         }
-        else
-            currentRea.getParent().splitAndDivide();
+        else{
+            if(!currentRea.getParent().isFullofNodes()){
+                Rea r= new Rea(max,dims,0,null);
+                node[] ns= currentRea.deleteAndReturn(index);
+                for (node n : ns)
+                    r.insertNode(n);
+                currentRea.getParent().addRea(r,currentRea);
+                r.adjustBounds();
+            }
+            else
+                currentRea.splitAndDivide(index);
+        }
     }
 
     private int chooseSplitAxis(Rea currentRea){

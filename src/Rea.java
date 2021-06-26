@@ -24,6 +24,10 @@ public class Rea {
 
     public void insertNode(node n){
         if(leaves.size()<nodeLimit) {
+            if(leaves.size()==0){
+                boundhigh=n.getCoordinates();
+                boundlow=n.getCoordinates();
+            }
             leaves.add(n);
             Collections.sort(leaves);
         }
@@ -69,14 +73,61 @@ public class Rea {
             leaves.remove(id);
     }
 
-    private void adjustBounds(){
-        float[] coordinates=leaves.get(0).getCoordinates();
-        for(int i=0;i<leaves.get(0).getDims();i++){
-            if (coordinates[i]<boundlow[i])
-                boundlow[i]=coordinates[i];
-            if (coordinates[i]>boundhigh[i])
-                boundhigh[i]=coordinates[i];
+    public void adjustBounds(){
+        if(leaves.size()>0) {
+            float[] coordinates = leaves.get(0).getCoordinates();
+            boundlow=coordinates;
+            boundhigh=coordinates;
+            for (int i = 1; i < leaves.get(0).getDims(); i++) {
+                coordinates=leaves.get(i).getCoordinates();
+                if (coordinates[i] < boundlow[i])
+                    boundlow[i] = coordinates[i];
+                if (coordinates[i] > boundhigh[i])
+                    boundhigh[i] = coordinates[i];
+            }
         }
+        else{
+            float[] coordinates1,coordinates2;
+            for(int i=0;i<nodes.size();i++){
+                coordinates1=nodes.get(i).getBoundhigh();
+                coordinates2=nodes.get(i).getBoundlow();
+                for(int j=0;j<coordinates1.length;j++){
+                    if (coordinates1[j] > boundhigh[j])
+                        boundhigh[j] = coordinates1[j];
+                    if (coordinates2[j] < boundlow[j])
+                        boundlow[i] = coordinates2[j];
+                }
+            }
+        }
+        if(parent!=null)
+            parent.adjustBounds();
+    }
+
+    public node[] deleteAndReturn(int index){
+        node[] ns=new node[nodeLimit-index-1];
+        for(int i=index;i<nodeLimit;i++)
+            ns[i]= leaves.get(i);
+        if (nodeLimit > index) {
+            leaves.subList(index, nodeLimit).clear();
+        }
+        adjustBounds();
+        return ns;
+    }
+
+    public void splitAndDivide(int index){
+        Rea r1=new Rea(nodeLimit,boundhigh.length,level+1,this);
+        Rea r2=new Rea(nodeLimit,boundhigh.length,level+1,this);
+        for (int i=0;i<=index;i++){
+            r1.insertNode(leaves.get(i));
+        }
+        for (int i=index+1;i<nodeLimit;i++){
+            r2.insertNode(leaves.get(i));
+        }
+        nodes.add(r1);
+        r1.adjustBounds();
+        nodes.add(r2);
+        r2.adjustBounds();
+        leaves.clear();
     }
     
     public void printRea(){
@@ -108,9 +159,13 @@ public class Rea {
         return pos;
     }
 
+    public void addRea(Rea r,Rea nextTo){nodes.add(nodes.indexOf(nextTo),r);}
+
     public boolean isLeaf(){ return nodes.size()==0; }
 
-    public boolean isFull(){ return nodes.size()==nodeLimit;}
+    public boolean isFullofLeaves(){ return leaves.size()==nodeLimit;}
+
+    public boolean isFullofNodes(){ return nodes.size()==nodeLimit;}
 
     public float[] getCenter(){
         float[] center=new float[boundlow.length];
@@ -126,6 +181,10 @@ public class Rea {
     public int getLevel(){return level;}
 
     public Rea getParent(){ return parent;}
+
+    public float[] getBoundlow(){return boundlow;}
+
+    public float[] getBoundhigh(){return boundhigh;}
 
     public void bulkAddNode(node n){
         if (leaves.size()==0){
