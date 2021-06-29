@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import static java.lang.Math.abs;
+import static java.lang.Math.sqrt;
 
 public class Rea {
     float[] boundlow;
@@ -36,9 +38,9 @@ public class Rea {
     public node[] getMaxDistances(node n){
         float[] center=getCenter();
         node c=new node(center);
-        float[] distances= new float[leaves.size()+1];
+        double[] distances= new double[leaves.size()+1];
         int[] ids=new int[leaves.size()+1];
-        float temp1;
+        double temp1;
         int temp2;
         for(int i=0;i<leaves.size();i++){
             distances[i]=leaves.get(i).calculateDistance(c);
@@ -66,6 +68,42 @@ public class Rea {
         removeLeaves(ids);
         adjustBounds();
         return maxnodes;
+    }
+
+    public double minDist(node Point){
+        float min=0;
+        float rd;
+        int n=Point.getDims();
+
+        for (int i=0; i<n;i++){
+            if (boundlow[i]>n){
+                rd=boundlow[i];
+            }else if (boundhigh[i]<n){
+                rd=boundhigh[i];
+            }else{
+                rd=n;
+            }
+            min+=Math.pow(n-rd,2);
+        }
+        return sqrt(min);
+    }
+
+    public ArrayList<Rea> minDistRea(node Point){
+        float min=0;
+        ArrayList<Rea> near=nodes;
+        int n=Point.getDims(),i=0;
+        float[] coord= Point.getCoordinates();
+        float minLow=boundlow[i],minHigh=boundhigh[i];
+
+        for (i=0; i<n;i++){
+            if (minLow<boundlow[i] && boundhigh[i]>minHigh){
+                minLow=boundlow[i];
+                minHigh=boundhigh[i];
+                near=nodes;
+            }
+
+        }
+        return near;
     }
 
     private void removeLeaves(int[] ids){

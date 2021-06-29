@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class Rtree {
     ArrayList<Rea> root;
@@ -8,6 +9,7 @@ public class Rtree {
     ArrayList<Float> boundlow;
     ArrayList<Float> boundhigh;
     int dims;
+    Scanner scan = new Scanner(System.in);
 
     public Rtree(int dims,ArrayList<Float> boundlow,ArrayList<Float> boundhigh){
         max= (int)Math.floor(32000.0/(4*dims));
@@ -108,6 +110,7 @@ public class Rtree {
         }
     }
 
+
     private int chooseSplitAxis(Rea currentRea){
         return currentRea.lowestAxis();
     }
@@ -132,4 +135,32 @@ public class Rtree {
             root.get(i).printRea();
         }
     }
+
+
+    public void NearestNeighbours(node N, node Point , node Nearest){
+
+        node newNode;
+        Rtree branchList;
+        int last,i;
+        double dist;
+        Rea currentR=chooseSubtree(root,N);
+        ArrayList<Rea> NearestRea;
+
+        if (currentR.isLeaf()){
+            for(i=0; i<(currentR.leaves.size()+currentR.nodes.size()); i++){
+                dist= currentR.minDist(Point);
+                if (dist<Nearest.calculateDistance(Point)){
+                    dist=Nearest.calculateDistance(Point);
+                    NearestRea= currentR.minDistRea(Point);
+                }else{
+
+                }
+
+            }
+        }
+
+    }
+
+
+
 }

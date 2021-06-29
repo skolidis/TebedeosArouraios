@@ -22,7 +22,7 @@ public class node implements Comparable<node> {
         return coordinates;
     }
 
-    public float calculateDistance(node n){
+    public double calculateDistance(node n){
         float sum=0;
         float[] other=n.getCoordinates();
         for(int i=0;i<coordinates.length;i++)
