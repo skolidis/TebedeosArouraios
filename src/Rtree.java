@@ -132,4 +132,28 @@ public class Rtree {
             root.get(i).printRea();
         }
     }
+    
+    public void NearestNeighbours(node N, node Point , node Nearest){
+
+        node newNode;
+        Rtree branchList;
+        int last,i;
+        double dist;
+        Rea currentR=chooseSubtree(root,N);
+        ArrayList<Rea> NearestRea;
+
+        if (currentR.isLeaf()){
+            for(i=0; i<(currentR.leaves.size()+currentR.nodes.size()); i++){
+                dist= currentR.minDist(Point);
+                if (dist<Nearest.calculateDistance(Point)){
+                    dist=Nearest.calculateDistance(Point);
+                    NearestRea= currentR.minDistRea(Point);
+                }else{
+
+                }
+
+            }
+        }
+
+    }
 }
