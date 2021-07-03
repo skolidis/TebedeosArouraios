@@ -69,6 +69,42 @@ public class Rea {
         adjustBounds();
         return maxnodes;
     }
+    
+    public double minDist(node Point){
+        float min=0;
+        float rd;
+        int n=Point.getDims();
+
+        for (int i=0; i<n;i++){
+            if (boundlow[i]>n){
+                rd=boundlow[i];
+            }else if (boundhigh[i]<n){
+                rd=boundhigh[i];
+            }else{
+                rd=n;
+            }
+            min+=Math.pow(n-rd,2);
+        }
+        return sqrt(min);
+    }
+
+    public ArrayList<Rea> minDistRea(node Point){
+        float min=0;
+        ArrayList<Rea> near=nodes;
+        int n=Point.getDims(),i=0;
+        float[] coord= Point.getCoordinates();
+        float minLow=boundlow[i],minHigh=boundhigh[i];
+
+        for (i=0; i<n;i++){
+            if (minLow<boundlow[i] && boundhigh[i]>minHigh){
+                minLow=boundlow[i];
+                minHigh=boundhigh[i];
+                near=nodes;
+            }
+
+        }
+        return near;
+    }
 
     public double minDist(node Point){
         float min=0;
