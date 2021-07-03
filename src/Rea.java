@@ -88,6 +88,56 @@ public class Rea {
         return sqrt(min);
     }
 
+    public double Mk(int n, double s, double t){
+        double sum=(s + t)/2;
+        if(n<=sum) {
+            return s;
+        }else{
+            return t;
+        }
+    }
+
+    public double Mi(int n, double s, double t){
+        double sum=(s + t)/2;
+        if (n>=sum){
+            return s;
+        }else{
+            return t;
+        }
+    }
+
+
+    public double minmaxDist(node Point, Rea M){
+        int n=Point.getDims();
+        double min[]=new double[n],sum=0,minD;
+        float rd;
+
+        for (int i=0; i<n;i++){
+            sum=Math.pow(n-Mk(n,M.boundlow[i],M.boundhigh[i]),2);
+            for(int j=0;j<n;j++){
+                sum+=Math.pow(n - Mi(n,boundlow[i],boundhigh[i]),2);
+            }
+            min[i]=sqrt(sum);
+            sum=0;
+        }
+        minD=min[0];
+        for (int i=1;i<min.length;i++){
+            if (min[i]<minD){
+                minD=min[i];
+            }
+        }
+        return minD;
+    }
+
+    public double euclid(float[] A, float B[]){
+        double sum=0;
+        int n=A.length;
+        for (int i=0;i<n;i++){
+            sum+=Math.pow(A[i]-B[i],2);
+        }
+        return sqrt(sum);
+    }
+
     public ArrayList<Rea> minDistRea(node Point){
         float min=0;
         ArrayList<Rea> near=nodes;
@@ -223,6 +273,14 @@ public class Rea {
     public float[] getBoundlow(){return boundlow;}
 
     public float[] getBoundhigh(){return boundhigh;}
+
+    public ArrayList<Rea> generateBranchList(node Point, node N){
+        ArrayList<Rea> BranchList= new ArrayList<>();
+        BranchList=minDistRea(Point);
+        BranchList.addAll(minDistRea(N));
+        return BranchList;
+    }
+
 
     public void bulkAddNode(node n){
         if (leaves.size()==0){

@@ -1,6 +1,5 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.awt.*;
+import java.util.*;
 
 public class Rtree {
     ArrayList<Rea> root;
@@ -136,15 +135,54 @@ public class Rtree {
         }
     }
 
+    public void sortBranch(ArrayList<Rea> branchList, node Point){
+        int i, n= branchList.size();
+        Rea branchI, branchJ,temp;
+        double minI,minJ,minmaxI,minmaxJ;
+        for (i=0; i<n-1;i++){
+            branchI=branchList.get(i);
+            branchJ=branchList.get(i+1);
+            minI=branchI.minDist(Point);
+            minJ=branchJ.minDist(Point);
+            minmaxI=branchI.minmaxDist(Point,branchI);
+            minmaxJ=branchJ.minmaxDist(Point,branchJ);
+            if (minI>minJ&&minmaxI<minmaxJ){
+                Collections.swap(branchList, i, i+1);
+            }
+        }
+    }
+
+    public void downPrune(node P, ArrayList<Rea> branchList) {
+        int n = branchList.size();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (branchList.get(i).minDist(P)>branchList.get(j).minmaxDist(P,branchList.get(j))){
+                    branchList.remove(j);
+                }
+            }
+        }
+
+    }
+
+    public void upPrune(node P, ArrayList<Rea> branchList, double min, double minmax) {
+        int n = branchList.size();
+        for (int i = 0; i < n; i++) {
+            if (branchList.get(i).minDist(P)>min || branchList.get(i).minmaxDist(P,branchList.get(i))<minmax){
+                branchList.remove(i);
+            }
+        }
+
+    }
+
 
     public void NearestNeighbours(node N, node Point , node Nearest){
 
         node newNode;
-        Rtree branchList;
-        int last,i;
-        double dist;
+        ArrayList<Rea> branchList= new ArrayList<Rea>();
+        int i;
+        double dist,min,minmax;
         Rea currentR=chooseSubtree(root,N);
-        ArrayList<Rea> NearestRea;
+        ArrayList<Rea> NearestRea, last;
 
         if (currentR.isLeaf()){
             for(i=0; i<(currentR.leaves.size()+currentR.nodes.size()); i++){
@@ -153,6 +191,20 @@ public class Rtree {
                     dist=Nearest.calculateDistance(Point);
                     NearestRea= currentR.minDistRea(Point);
                 }else{
+                    branchList=currentR.generateBranchList(Point, N);
+                    sortBranch(branchList,Point);
+                    downPrune(Point,branchList);
+
+                    for(int j=0; j< branchList.size();j++){
+                        newNode=branchList.get(j).leaves.get(j);
+
+                        NearestNeighbours(newNode,Point,Nearest);
+                        min=branchList.get(j).minDist(Point);
+                        minmax=branchList.get(j).minmaxDist(Point,branchList.get(j));
+
+                        upPrune(Point,branchList,min,minmax);
+
+                    }
 
                 }
 
