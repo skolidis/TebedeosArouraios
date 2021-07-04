@@ -175,14 +175,14 @@ public class Rtree {
     }
 
 
-    public void NearestNeighbours(node N, node Point , node Nearest){
+    public ArrayList<Rea> NearestNeighbours(node N, node Point , node Nearest){
 
         node newNode;
         ArrayList<Rea> branchList= new ArrayList<Rea>();
         int i;
         double dist,min,minmax;
         Rea currentR=chooseSubtree(root,N);
-        ArrayList<Rea> NearestRea, last;
+        ArrayList<Rea> NearestRea, last=branchList;
 
         if (currentR.isLeaf()){
             for(i=0; i<(currentR.leaves.size()+currentR.nodes.size()); i++){
@@ -190,27 +190,25 @@ public class Rtree {
                 if (dist<Nearest.calculateDistance(Point)){
                     dist=Nearest.calculateDistance(Point);
                     NearestRea= currentR.minDistRea(Point);
-                }else{
-                    branchList=currentR.generateBranchList(Point, N);
-                    sortBranch(branchList,Point);
-                    downPrune(Point,branchList);
-
-                    for(int j=0; j< branchList.size();j++){
-                        newNode=branchList.get(j).leaves.get(j);
-
-                        NearestNeighbours(newNode,Point,Nearest);
-                        min=branchList.get(j).minDist(Point);
-                        minmax=branchList.get(j).minmaxDist(Point,branchList.get(j));
-
-                        upPrune(Point,branchList,min,minmax);
-
-                    }
-
                 }
+            }
+        }else{
+            branchList=currentR.generateBranchList(Point, N);
+            sortBranch(branchList,Point);
+            downPrune(Point,branchList);
+
+            for(int j=0; j< branchList.size();j++){
+                newNode=branchList.get(j).leaves.get(j);
+
+                NearestNeighbours(newNode,Point,Nearest);
+                min=branchList.get(j).minDist(Point);
+                minmax=branchList.get(j).minmaxDist(Point,branchList.get(j));
+
+                upPrune(Point,branchList,min,minmax);
 
             }
         }
-
+        return last;
     }
 
 
